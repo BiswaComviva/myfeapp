@@ -5,6 +5,7 @@ import Navbar from '../src/pages/Navbar';
 import Landing from '../src/pages/LandingPage';
 import Login from '../src/pages/Login';
 import Profile from '../src/pages/userPage';
+import OTPPage from '../src/pages/otpPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route exact path="/" component={Landing} />
           <div className="container">
           <Route exact path="/login" component={Login} />
+          <Route exact path="/OTPPage" component={OTPPage} />
           <Route exact path="/profile" component={Profile} />
           </div>
         </div>

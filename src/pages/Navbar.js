@@ -3,11 +3,10 @@ import {Link , withRouter} from 'react-router-dom';
 
 class Navbar extends Component {
     logOut(e){
-        e.prevenDefault()
-        localStorage.removeItem('usertoken');
+        
+        localStorage.clear();
         this.props.history.push('/');
     }
-
     render (){
         const loginRegLink = (
             <ul className="navbar-nav">
@@ -34,9 +33,9 @@ class Navbar extends Component {
             </li>
 
             <li className="nav-item">
-                <a href="" onClick={this.logOut.bind(this)} className="nav-link">
+                <Link to="/login" onClick={this.logOut.bind(this)} className="nav-link">
                     Logout
-                </a>
+                </Link>
             </li>
         </ul>
     )
@@ -54,7 +53,7 @@ class Navbar extends Component {
                 <span className="navbar-toggle-icon"></span>
         </button>
         
-        <div className="collapse navbar-collapse justify-content-md-center" id="navbar1">
+        <div className="navbar navbar-expand-lg navbar-light bg-light" id="navbar1">
             <ul className="navbar-nav">
                 <li className="nav-item">
                     <Link to='/' className="nav-link">
@@ -62,7 +61,7 @@ class Navbar extends Component {
                     </Link>
                 </li>
             </ul>
-            {localStorage.usertoken ? userLink : loginRegLink}
+            {localStorage.getItem('userLoggedIn') ? userLink : loginRegLink}
         </div>
         </div>
     )

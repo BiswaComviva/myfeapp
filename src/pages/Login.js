@@ -1,32 +1,73 @@
 import React , {Component} from 'react';
 import ApiLayer from '../apiRequest/apiLayer';
+import { FormErrors } from './FormErrors';
 
 class Login extends Component {
     constructor(){
         super()
         this.state = {
             userid: '',
-            msisdn: ''
+            formErrors: {userid: ''},
+            useridValid: false,
+            formValid: false
         }
         this.onchange = this.onchange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
     }
 
     onchange(e) {
-        this.setState({[e.target.name]: e.target.value })
+        //this.setState({[e.target.name]: e.target.value })
+        e.preventDefault();
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({[name]: value},
+                      () => { this.validateField(name, value) });
     }
+
+    validateField(fieldName, value) {
+        let fieldValidationErrors = this.state.formErrors;
+         let useridValid = this.state.useridValid;
+
+         switch(fieldName) {
+            case 'userid':
+              useridValid = value.match("^[a-zA-Z][A-Za-z0-9_]*$");
+              fieldValidationErrors.userid = useridValid ? '' : ' is invalid';
+              break;
+            default:
+              break;
+          }
+          this.setState({formErrors: fieldValidationErrors,
+            useridValid: useridValid
+          }, this.validateForm);
+        }
+
+    validateForm() {
+        this.setState({formValid: this.state.useridValid});
+      }
+    
+      errorClass(error) {
+        return(error.length === 0 ? '' : 'has-error');
+      }
 
     onSubmit(e) {
         e.preventDefault()
+        let valid = this.state.useridValid;
 
-        // const User = {
-        //     userid: this.state.userid
-        // }
+        if(valid){
+        ApiLayer.getUser(this.state.userid).then((response) => {
+            if(response.userid) {
+                var userData = {
+                    "userid" :response.userid
+                }
+                localStorage.setItem('userToken' , JSON.stringify(userData));
+                this.props.history.push('/OTPPage');
+            } else {
 
-        const userData = ApiLayer.getUser(this.state.userid);
-        if(userData) {
-            this.props.history.push('/profile');
-        }
+            }
+        });
+        
+    } else {return '';
+}
     }
 
     render() {
@@ -34,29 +75,31 @@ class Login extends Component {
             <div className="container">
                 <div className="row">
                     <div className="col-md-6 mt-5 mx-auto">
-                        <form noValidate onSubmit={this.onSubmit}>
+                        <form onSubmit={this.onSubmit}>
                         <h1 className="h3 mb-3 font-weight-normal">Please Login</h1>
                         <div className="form-group"></div>
-                        <label htmlFor="text">UserId:</label>
+                        <label htmlFor="text">USERID:</label>
                         <input type="text"
                                className="form-control"
                                name="userid"
                                placeholder="UserId." 
                                value={this.state.userid}
                                onChange={this.onchange}/>
-                        <button type="submit" className="btn btn-lg btn-primary btn-block">
+                        <button type="submit" disabled={!this.state.formValid}  className="btn btn-lg btn-primary btn-block">
                             Log In
                         </button>
                         </form>
                     </div>
+                    <div className="col-md-6 mt-5 mx-auto"></div>     
                 </div>
-
+                <div className="row">
+                <div className="col-md-6 mt-5 mx-auto">
+                <FormErrors formErrors={this.state.formErrors} />
+                    <div className={`form-group ${this.errorClass(this.state.formErrors.userid)}`}></div></div>
+                    <div className="col-md-6 mt-5 mx-auto"></div>
+                    </div>
             </div>
-
         )
     }
-
-    
 }
-
 export default Login;
