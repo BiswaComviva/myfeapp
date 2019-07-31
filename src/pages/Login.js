@@ -1,15 +1,18 @@
 import React , {Component} from 'react';
 import ApiLayer from '../apiRequest/apiLayer';
 import { FormErrors } from './FormErrors';
+import '../statics/loginPage.css';
 
 class Login extends Component {
     constructor(){
         super()
         this.state = {
             userid: '',
+            message: '',
             formErrors: {userid: ''},
             useridValid: false,
-            formValid: false
+            formValid: false,
+            showingAlert: false
         }
         this.onchange = this.onchange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -49,20 +52,31 @@ class Login extends Component {
         return(error.length === 0 ? '' : 'has-error');
       }
 
-    onSubmit(e) {
+  onSubmit(e) {
         e.preventDefault()
         let valid = this.state.useridValid;
 
         if(valid){
         ApiLayer.getUser(this.state.userid).then((response) => {
-            if(response.userid) {
+            if(response.code === 1) {
                 var userData = {
                     "userid" :response.userid
                 }
                 localStorage.setItem('userToken' , JSON.stringify(userData));
+                localStorage.setItem('trials' , 3);
                 this.props.history.push('/OTPPage');
             } else {
+                    this.setState ({message : response.message});
 
+                    this.setState({
+                        showingAlert: true
+                      });
+
+                    setTimeout(() => {
+                        this.setState({
+                          showingAlert: false
+                        });
+                      }, 2000);
             }
         });
         
@@ -90,14 +104,20 @@ class Login extends Component {
                         </button>
                         </form>
                     </div>
-                    <div className="col-md-6 mt-5 mx-auto"></div>     
                 </div>
                 <div className="row">
                 <div className="col-md-6 mt-5 mx-auto">
                 <FormErrors formErrors={this.state.formErrors} />
-                    <div className={`form-group ${this.errorClass(this.state.formErrors.userid)}`}></div></div>
-                    <div className="col-md-6 mt-5 mx-auto"></div>
-                    </div>
+                <div className={`form-group ${this.errorClass(this.state.formErrors.userid)}`}></div>
+                </div>
+
+                <div className="col-md-6 mt-5 mx-auto">
+                <div className={`alert alert-success ${this.state.showingAlert ? 'alert-shown' : 'alert-hidden'}`}>
+               <strong> {this.state.message} </strong>
+                </div>
+                </div>
+                    
+                </div>
             </div>
         )
     }

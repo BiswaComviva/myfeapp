@@ -10,12 +10,9 @@ export const getUser = userid => {
             },
           })
             .then(response =>  {
-                if(response.data.phno){
+                if(response.data){
+                    
                     return response.data;
-                } else {
-                    if(response.data.userid){
-                        return 
-                    }
                 }
                 })
             .catch(error => {

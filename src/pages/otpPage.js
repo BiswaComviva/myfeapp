@@ -8,13 +8,11 @@ class otppage extends Component {
   input = React.createRef();
   state = {
     value: "",
+    showTrials: false,
     focused: false,
   };
-  
-  
   handleClick = () => {
     this.input.current.focus();
-    
   };
   handleFocus = () => {
     this.setState({ focused: true });
@@ -38,10 +36,24 @@ class otppage extends Component {
       const userData = localStorage.getItem('userToken');
        ApiLayer.validateOtp(JSON.parse(userData).userid , this.state.value).then((response) => {
         
-        localStorage.setItem('userLoggedIn' , this.state.value);
-        this.props.history.push("/profile");
-     })
-    
+        if(response.code === 6){
+            localStorage.setItem('userLoggedIn' , true);
+            this.props.history.push("/profile");
+        } else {
+            var trials = localStorage.getItem('trials');
+            trials = trials -1;
+            localStorage.setItem('trials' , trials);
+            
+            this.setState({showTrials:true});
+            setTimeout(() => {
+                this.setState({
+                    showTrials:false
+                });
+              }, 1000);
+
+            //this.props.history.push("/login");      
+        }
+    })
   }
   handleChange = e => {
     const value = e.target.value;
@@ -99,6 +111,10 @@ class otppage extends Component {
         </div>
         </form>
         
+        <div className={`alert alert-success ${this.state.showTrials ? 'alert-shown' : 'alert-hidden'}`}>
+        <strong> Invalid OTP </strong>
+         You have <strong>{localStorage.getItem('trials')}</strong> left !!! 
+        </div>
       </div>
     );
   }
